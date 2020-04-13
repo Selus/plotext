@@ -28,6 +28,9 @@ type Candlesticks struct {
 	// ColorDown is the color of sticks where C < O
 	ColorDown color.Color
 
+	// ColorSpecial is the color of sticks where SP == true
+	ColorSpecial color.Color
+
 	// LineStyle is the style used to draw the sticks.
 	draw.LineStyle
 
@@ -55,6 +58,7 @@ func NewCandlesticks(TOHLCV TOHLCVer) (*Candlesticks, error) {
 		FixedLineColor: true,
 		ColorUp:        color.RGBA{R: 128, G: 192, B: 128, A: 255}, // eye is more sensible to green
 		ColorDown:      color.RGBA{R: 255, G: 128, B: 128, A: 255},
+		ColorSpecial:   color.RGBA{R: 128, G: 128, B: 255, A: 255},
 		LineStyle:      plotter.DefaultLineStyle,
 		CandleWidth:    vg.Length(DefaultCandleWidthFactor) * plotter.DefaultLineStyle.Width,
 	}, nil
@@ -67,7 +71,9 @@ func (sticks *Candlesticks) Plot(c draw.Canvas, plt *plot.Plot) {
 
 	for _, TOHLCV := range sticks.TOHLCVs {
 		var fillColor color.Color
-		if TOHLCV.C >= TOHLCV.O {
+		if TOHLCV.SP == true {
+			fillColor = sticks.ColorSpecial
+		} else if TOHLCV.C >= TOHLCV.O {
 			fillColor = sticks.ColorUp
 		} else {
 			fillColor = sticks.ColorDown

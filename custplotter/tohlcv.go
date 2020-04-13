@@ -12,11 +12,14 @@ type TOHLCVer interface {
 	Len() int
 
 	// TOHLCV returns an time, open, high, low, close, volume tuple.
-	TOHLCV(int) (float64, float64, float64, float64, float64, float64)
+	TOHLCV(int) (float64, float64, float64, float64, float64, float64, bool)
 }
 
 // TOHLCVs implements the TOHLCVer interface using a slice.
-type TOHLCVs []struct{ T, O, H, L, C, V float64 }
+type TOHLCVs []struct {
+	T, O, H, L, C, V float64
+	SP               bool
+}
 
 // Len implements the Len method of the TOHLCVer interface.
 func (TOHLCV TOHLCVs) Len() int {
@@ -24,15 +27,15 @@ func (TOHLCV TOHLCVs) Len() int {
 }
 
 // TOHLCV implements the TOHLCV method of the TOHLCVer interface.
-func (TOHLCV TOHLCVs) TOHLCV(i int) (float64, float64, float64, float64, float64, float64) {
-	return TOHLCV[i].T, TOHLCV[i].O, TOHLCV[i].H, TOHLCV[i].L, TOHLCV[i].C, TOHLCV[i].V
+func (TOHLCV TOHLCVs) TOHLCV(i int) (float64, float64, float64, float64, float64, float64, bool) {
+	return TOHLCV[i].T, TOHLCV[i].O, TOHLCV[i].H, TOHLCV[i].L, TOHLCV[i].C, TOHLCV[i].V, TOHLCV[i].SP
 }
 
 // CopyTOHLCVs copies an TOHLCVer.
 func CopyTOHLCVs(data TOHLCVer) (TOHLCVs, error) {
 	cpy := make(TOHLCVs, data.Len())
 	for i := range cpy {
-		cpy[i].T, cpy[i].O, cpy[i].H, cpy[i].L, cpy[i].C, cpy[i].V = data.TOHLCV(i)
+		cpy[i].T, cpy[i].O, cpy[i].H, cpy[i].L, cpy[i].C, cpy[i].V, cpy[i].SP = data.TOHLCV(i)
 		if err := plotter.CheckFloats(cpy[i].O, cpy[i].H, cpy[i].L, cpy[i].C, cpy[i].V); err != nil {
 			return nil, err
 		}
